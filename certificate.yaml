@@ -8,6 +8,7 @@ spec:
   renewBefore: 10m
   dnsNames:
   - mongoexpress.deepakdev.live
+  - grafana.deepakdev.live
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer

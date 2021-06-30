@@ -10,11 +10,12 @@ data:
 ---
 
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: mongo-db-deploy
 spec:
   replicas: 1
+  serviceName: mongo-db
   selector:
     matchLabels:
       app: mongo-db-deploy
@@ -40,6 +41,9 @@ spec:
             configMapKeyRef:
               name: mongo-db-configmap
               key: MONGO_INITDB_ROOT_PASSWORD
+        volumeMounts:
+        - name: mongo-db-data
+          mountPath: "/data/db"
         resources:
           requests:
             cpu: "250m"
@@ -47,6 +51,10 @@ spec:
           limits:
             cpu: "500m"
             memory: "500Mi"
+      volumes:
+      - name: mongo-db-data
+        persistentVolumeClaim:
+          claimName: mongo-db-persistent-volume-claim
 
 
 ---
