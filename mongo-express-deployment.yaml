@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongo-express-configmap
+data:
+  ME_CONFIG_MONGODB_ADMINUSERNAME: "kannan"
+  ME_CONFIG_MONGODB_ADMINPASSWORD: "kannanpass"
+  ME_CONFIG_MONGODB_SERVER: "mongo-db-service"
+
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-express-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo-express-deploy
+  template:
+    metadata:
+      labels:
+        app: mongo-express-deploy
+    spec:
+      containers:
+      - name: mongo-express-deploy
+        image: mongo-express:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8081
+        env:
+        - name: ME_CONFIG_MONGODB_ADMINUSERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: mongo-express-configmap
+              key: ME_CONFIG_MONGODB_ADMINUSERNAME
+        - name: ME_CONFIG_MONGODB_ADMINPASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: mongo-express-configmap
+              key: ME_CONFIG_MONGODB_ADMINPASSWORD
+        - name: ME_CONFIG_MONGODB_SERVER
+          valueFrom:
+            configMapKeyRef:
+              name: mongo-express-configmap
+              key: ME_CONFIG_MONGODB_SERVER
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "500Mi"
+          limits:
+            cpu: "1000m"
+            memory: "1000Mi"
+
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-express-service
+spec:
+  selector:
+    app: mongo-express-deploy
+  ports:
+  - protocol: TCP
+    port: 8081
+    targetPort: 8081
